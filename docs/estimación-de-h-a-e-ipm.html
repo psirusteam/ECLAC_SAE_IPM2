@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es" xml:lang="es">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4.5 Estimación de \(H\), \(A\) e \(IPM\) | Metodología bayesiana de estimación desagregada para cualquier IPM</title>
+  <meta name="description" content="Metodología bayesiana de estimación del IPM" />
+  <meta name="generator" content="bookdown 0.35 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4.5 Estimación de \(H\), \(A\) e \(IPM\) | Metodología bayesiana de estimación desagregada para cualquier IPM" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="Metodología bayesiana de estimación del IPM" />
+  <meta name="github-repo" content="psirusteam/HHS-Handbook" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4.5 Estimación de \(H\), \(A\) e \(IPM\) | Metodología bayesiana de estimación desagregada para cualquier IPM" />
+  
+  <meta name="twitter:description" content="Metodología bayesiana de estimación del IPM" />
+  
+
+<meta name="author" content="Andrés Gutiérrez, Stalyn Guerrero" />
+
+
+<meta name="date" content="2023-10-02" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="calculando-q_dil-ileft-q_dil-ge-z-right-y-c_dilleftzright.html"/>
+<link rel="next" href="estimaciones-desagregadas-del-ipm.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Censo </a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introducción</a></li>
+<li class="chapter" data-level="2" data-path="índice-de-pobreza-multidimensional.html"><a href="índice-de-pobreza-multidimensional.html"><i class="fa fa-check"></i><b>2</b> Índice de Pobreza Multidimensional</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="ejemplo.html"><a href="ejemplo.html"><i class="fa fa-check"></i><b>2.1</b> Ejemplo</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="estimación-del-modelo-de-unidad-para-variables-binarias.html"><a href="estimación-del-modelo-de-unidad-para-variables-binarias.html"><i class="fa fa-check"></i><b>3</b> Estimación del modelo de unidad para variables Binarias</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="estimación-de-pik_di.html"><a href="estimación-de-pik_di.html"><i class="fa fa-check"></i><b>3.1</b> Estimación de <span class="math inline">\(\pi^{k}_{di}\)</span></a></li>
+<li class="chapter" data-level="3.2" data-path="pedicción-de-los-hard-estimates.html"><a href="pedicción-de-los-hard-estimates.html"><i class="fa fa-check"></i><b>3.2</b> Pedicción de los Hard estimates</a></li>
+<li class="chapter" data-level="3.3" data-path="estimación-puntual-del-índice-de-pobreza-multidimensional-ipm.html"><a href="estimación-puntual-del-índice-de-pobreza-multidimensional-ipm.html"><i class="fa fa-check"></i><b>3.3</b> Estimación Puntual del Índice de Pobreza Multidimensional (IPM)</a></li>
+<li class="chapter" data-level="3.4" data-path="ejemplo-aplicación-de-la-metodología..html"><a href="ejemplo-aplicación-de-la-metodología..html"><i class="fa fa-check"></i><b>3.4</b> Ejemplo: Aplicación de la metodología.</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="aplicación-índice-de-pobreza-multidimensional-en-colombia..html"><a href="aplicación-índice-de-pobreza-multidimensional-en-colombia..html"><i class="fa fa-check"></i><b>4</b> Aplicación: Índice de Pobreza Multidimensional en Colombia.</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="definiendo-de-los-modelos-en-stan..html"><a href="definiendo-de-los-modelos-en-stan..html"><i class="fa fa-check"></i><b>4.1</b> Definiendo de los modelos en Stan.</a></li>
+<li class="chapter" data-level="4.2" data-path="proceso-para-la-predicción-pi_dikl.html"><a href="proceso-para-la-predicción-pi_dikl.html"><i class="fa fa-check"></i><b>4.2</b> Proceso para la predicción <span class="math inline">\(\pi_{di}^{kl}\)</span></a></li>
+<li class="chapter" data-level="4.3" data-path="definiendo-los-hard-estimates.html"><a href="definiendo-los-hard-estimates.html"><i class="fa fa-check"></i><b>4.3</b> Definiendo los hard estimates</a></li>
+<li class="chapter" data-level="4.4" data-path="calculando-q_dil-ileft-q_dil-ge-z-right-y-c_dilleftzright.html"><a href="calculando-q_dil-ileft-q_dil-ge-z-right-y-c_dilleftzright.html"><i class="fa fa-check"></i><b>4.4</b> Calculando <span class="math inline">\(q_{di}^{l}\)</span>, <span class="math inline">\(I\left( q_{di}^{l} \ge z \right)\)</span> y <span class="math inline">\(c_{di}^{l}\left(z\right)\)</span></a></li>
+<li class="chapter" data-level="4.5" data-path="estimación-de-h-a-e-ipm.html"><a href="estimación-de-h-a-e-ipm.html"><i class="fa fa-check"></i><b>4.5</b> Estimación de <span class="math inline">\(H\)</span>, <span class="math inline">\(A\)</span> e <span class="math inline">\(IPM\)</span></a></li>
+<li class="chapter" data-level="4.6" data-path="estimaciones-desagregadas-del-ipm.html"><a href="estimaciones-desagregadas-del-ipm.html"><i class="fa fa-check"></i><b>4.6</b> Estimaciones desagregadas del IPM</a></li>
+<li class="chapter" data-level="4.7" data-path="estimaciones-por-dimension-del-ipm.html"><a href="estimaciones-por-dimension-del-ipm.html"><i class="fa fa-check"></i><b>4.7</b> Estimaciones por dimension del IPM</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="mapa-del-ipm-por-municipio-de-colombia.html"><a href="mapa-del-ipm-por-municipio-de-colombia.html"><i class="fa fa-check"></i><b>5</b> Mapa del IPM por municipio de Colombia</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="mapa-municipal-por-dimensión-del-ipm.html"><a href="mapa-municipal-por-dimensión-del-ipm.html"><i class="fa fa-check"></i><b>5.1</b> Mapa municipal por dimensión del IPM</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a Censo </a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Metodología bayesiana de estimación desagregada para cualquier IPM</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="estimación-de-h-a-e-ipm" class="section level2 hasAnchor" number="4.5">
+<h2><span class="header-section-number">4.5</span> Estimación de <span class="math inline">\(H\)</span>, <span class="math inline">\(A\)</span> e <span class="math inline">\(IPM\)</span><a href="estimación-de-h-a-e-ipm.html#estimación-de-h-a-e-ipm" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Para este proceso debemos realizar sumas ponderadas, dado que cada registro de la base de datos representa un grupo de observaciones con las mismas características.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="estimación-de-h-a-e-ipm.html#cb41-1" tabindex="-1"></a>numIPM <span class="ot">&lt;-</span> <span class="fu">t</span>(chain_ci) <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="estimación-de-h-a-e-ipm.html#cb41-2" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="estimación-de-h-a-e-ipm.html#cb41-3" tabindex="-1"></a>  <span class="fu">mutate_all</span>(<span class="sc">~</span> . <span class="sc">*</span> censo_ipm<span class="sc">$</span>n) <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="estimación-de-h-a-e-ipm.html#cb41-4" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb41-5"><a href="estimación-de-h-a-e-ipm.html#cb41-5" tabindex="-1"></a></span>
+<span id="cb41-6"><a href="estimación-de-h-a-e-ipm.html#cb41-6" tabindex="-1"></a>chain_N <span class="ot">&lt;-</span> <span class="fu">t</span>(chain_Ind) <span class="sc">%&gt;%</span></span>
+<span id="cb41-7"><a href="estimación-de-h-a-e-ipm.html#cb41-7" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-8"><a href="estimación-de-h-a-e-ipm.html#cb41-8" tabindex="-1"></a>  <span class="fu">mutate_all</span>(<span class="sc">~</span> . <span class="sc">*</span> censo_ipm<span class="sc">$</span>n) <span class="sc">%&gt;%</span></span>
+<span id="cb41-9"><a href="estimación-de-h-a-e-ipm.html#cb41-9" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb41-10"><a href="estimación-de-h-a-e-ipm.html#cb41-10" tabindex="-1"></a></span>
+<span id="cb41-11"><a href="estimación-de-h-a-e-ipm.html#cb41-11" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="estimación-de-h-a-e-ipm.html#cb41-12" tabindex="-1"></a>IPM_l <span class="ot">&lt;-</span> <span class="fu">colSums</span>(numIPM)<span class="sc">/</span><span class="fu">sum</span>(censo_ipm<span class="sc">$</span>n)</span>
+<span id="cb41-13"><a href="estimación-de-h-a-e-ipm.html#cb41-13" tabindex="-1"></a>Nz_l <span class="ot">&lt;-</span> <span class="fu">colSums</span>(chain_N)</span>
+<span id="cb41-14"><a href="estimación-de-h-a-e-ipm.html#cb41-14" tabindex="-1"></a>H_l <span class="ot">&lt;-</span> Nz_l<span class="sc">/</span><span class="fu">sum</span>(censo_ipm<span class="sc">$</span>n)</span>
+<span id="cb41-15"><a href="estimación-de-h-a-e-ipm.html#cb41-15" tabindex="-1"></a>A_l <span class="ot">&lt;-</span> <span class="fu">colSums</span>(numIPM)<span class="sc">/</span>Nz_l</span></code></pre></div>
+<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-37">Tabla 4.4: </span>l-iteraciones
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+IPM_l
+</th>
+<th style="text-align:right;">
+Nz_l
+</th>
+<th style="text-align:right;">
+H_l
+</th>
+<th style="text-align:right;">
+A_l
+</th>
+<th style="text-align:right;">
+HA_l
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+l = 1
+</td>
+<td style="text-align:right;">
+0.1840
+</td>
+<td style="text-align:right;">
+10321871
+</td>
+<td style="text-align:right;">
+0.3020
+</td>
+<td style="text-align:right;">
+0.6093
+</td>
+<td style="text-align:right;">
+0.1840
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 2
+</td>
+<td style="text-align:right;">
+0.1803
+</td>
+<td style="text-align:right;">
+10149096
+</td>
+<td style="text-align:right;">
+0.2969
+</td>
+<td style="text-align:right;">
+0.6074
+</td>
+<td style="text-align:right;">
+0.1803
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 3
+</td>
+<td style="text-align:right;">
+0.1932
+</td>
+<td style="text-align:right;">
+10960239
+</td>
+<td style="text-align:right;">
+0.3207
+</td>
+<td style="text-align:right;">
+0.6025
+</td>
+<td style="text-align:right;">
+0.1932
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 4
+</td>
+<td style="text-align:right;">
+0.2134
+</td>
+<td style="text-align:right;">
+12250636
+</td>
+<td style="text-align:right;">
+0.3584
+</td>
+<td style="text-align:right;">
+0.5954
+</td>
+<td style="text-align:right;">
+0.2134
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 5
+</td>
+<td style="text-align:right;">
+0.1777
+</td>
+<td style="text-align:right;">
+9989464
+</td>
+<td style="text-align:right;">
+0.2923
+</td>
+<td style="text-align:right;">
+0.6079
+</td>
+<td style="text-align:right;">
+0.1777
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 6
+</td>
+<td style="text-align:right;">
+0.2187
+</td>
+<td style="text-align:right;">
+12381895
+</td>
+<td style="text-align:right;">
+0.3622
+</td>
+<td style="text-align:right;">
+0.6037
+</td>
+<td style="text-align:right;">
+0.2187
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 7
+</td>
+<td style="text-align:right;">
+0.1895
+</td>
+<td style="text-align:right;">
+10616144
+</td>
+<td style="text-align:right;">
+0.3106
+</td>
+<td style="text-align:right;">
+0.6102
+</td>
+<td style="text-align:right;">
+0.1895
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 8
+</td>
+<td style="text-align:right;">
+0.1945
+</td>
+<td style="text-align:right;">
+11189155
+</td>
+<td style="text-align:right;">
+0.3274
+</td>
+<td style="text-align:right;">
+0.5941
+</td>
+<td style="text-align:right;">
+0.1945
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 9
+</td>
+<td style="text-align:right;">
+0.2068
+</td>
+<td style="text-align:right;">
+11684389
+</td>
+<td style="text-align:right;">
+0.3418
+</td>
+<td style="text-align:right;">
+0.6049
+</td>
+<td style="text-align:right;">
+0.2068
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+l = 10
+</td>
+<td style="text-align:right;">
+0.1909
+</td>
+<td style="text-align:right;">
+10840874
+</td>
+<td style="text-align:right;">
+0.3172
+</td>
+<td style="text-align:right;">
+0.6020
+</td>
+<td style="text-align:right;">
+0.1909
+</td>
+</tr>
+</tbody>
+</table>
+<p>Por último se realiza las estimaciones puntuales y varianza para <span class="math inline">\(H\)</span>, <span class="math inline">\(A\)</span> y <span class="math inline">\(IPM\)</span>, esto es:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="estimación-de-h-a-e-ipm.html#cb42-1" tabindex="-1"></a>estimacion <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">H =</span> <span class="fu">mean</span>(H_l),</span>
+<span id="cb42-2"><a href="estimación-de-h-a-e-ipm.html#cb42-2" tabindex="-1"></a>           <span class="at">H_sd =</span> <span class="fu">sd</span>(H_l),</span>
+<span id="cb42-3"><a href="estimación-de-h-a-e-ipm.html#cb42-3" tabindex="-1"></a>           <span class="at">A =</span> <span class="fu">mean</span>(A_l),</span>
+<span id="cb42-4"><a href="estimación-de-h-a-e-ipm.html#cb42-4" tabindex="-1"></a>           <span class="at">A_sd =</span> <span class="fu">sd</span>(A_l),</span>
+<span id="cb42-5"><a href="estimación-de-h-a-e-ipm.html#cb42-5" tabindex="-1"></a>           <span class="at">IPM =</span> <span class="fu">mean</span>(IPM_l),</span>
+<span id="cb42-6"><a href="estimación-de-h-a-e-ipm.html#cb42-6" tabindex="-1"></a>           <span class="at">IPM_sd =</span> <span class="fu">sd</span>(IPM_l))</span></code></pre></div>
+<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-39">Tabla 4.5: </span>Estimaciones Nacionales
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+H
+</th>
+<th style="text-align:right;">
+H_sd
+</th>
+<th style="text-align:right;">
+A
+</th>
+<th style="text-align:right;">
+A_sd
+</th>
+<th style="text-align:right;">
+IPM
+</th>
+<th style="text-align:right;">
+IPM_sd
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.318
+</td>
+<td style="text-align:right;">
+0.0147
+</td>
+<td style="text-align:right;">
+0.6046
+</td>
+<td style="text-align:right;">
+0.0039
+</td>
+<td style="text-align:right;">
+0.1922
+</td>
+<td style="text-align:right;">
+0.0082
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="calculando-q_dil-ileft-q_dil-ge-z-right-y-c_dilleftzright.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="estimaciones-desagregadas-del-ipm.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/psirusteam/2021ASDA/02_Aplicacion.qmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["Metodología bayesiana de estimación desagregada para cualquier IPM.pdf", "Metodología bayesiana de estimación desagregada para cualquier IPM.epub", "Metodología bayesiana de estimación desagregada para cualquier IPM.mobi"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "section"
+},
+"tconfig": null
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
