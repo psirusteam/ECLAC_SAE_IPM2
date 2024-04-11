@@ -17,9 +17,6 @@ epred_mat_material_dummy.rds
 epred_mat_saneamiento_dummy.rds
 epred_mat_salud_dummy.rds
 
-git lfs ls-files --size '>100MB' > archivos_grandes.txt
 
-
-git ls-files -s | awk '$4 > 104857600 > archivos_grandes.txt
 
 
