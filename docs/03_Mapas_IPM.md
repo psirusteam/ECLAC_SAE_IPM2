@@ -7,8 +7,9 @@ Dado que los municipios son otro nivel de desagregción, es posible realizar un 
 ```r
 library(sf)
 library(tmap)
-estimado_ipm <- readRDS(file = "Modelo_bayes_HxA/COL/Data/estimado_ipm_HA.rds")
-temp_estimate_mpio <- readRDS("Modelo_bayes_HxA/COL/data/temp_estimate_mpio.rds")
+estimado_ipm <- readRDS(file = "Modelo_bayes_HxA_Hogar/COL/Data/Modelo/estimado_ipm1.rds")
+temp_estimate_mpio <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/temp_estimate_mpio.rds")
+ShapeSAE <- read_sf("Modelo_bayes_HxA_Hogar/COL/Shape/COL_dam2.shp") 
 
 brks_H <-
   round(quantile(estimado_ipm$dam2$H, probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)), 2)
@@ -18,7 +19,7 @@ brks_A <-
   round(quantile(estimado_ipm$dam2$A, probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)), 2)
 
 maps3 <- tm_shape(ShapeSAE %>%
-                    left_join(estimado_ipm,  by = "dam2"))
+                    left_join(estimado_ipm$dam2,  by = "dam2"))
 ```
 
 Para crear los mapas se usa la siguiente sintaxis 
@@ -63,7 +64,7 @@ Mapas <- tmap_arrange(Mapa_H, Mapa_A, Mapa_ipm)
 
 tmap_save(
   Mapas,
-  "Modelo_bayes_HxA/COL/Output/COL_IPM.jpeg",
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM.jpeg",
   width = 6920,
   height = 4080,
   asp = 0
@@ -71,13 +72,13 @@ tmap_save(
 ```
 
 
-<img src="Modelo_bayes_HxA/COL/Output/COL_IPM.jpeg" height="400%" style="display: block; margin: auto;" />
+<img src="Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM.png" width="912" height="400%" style="display: block; margin: auto;" />
 
 ## Mapa municipal por dimensión del IPM
 
 
 ```r
-temp_estimate_mpio <- readRDS("Modelo_bayes_HxA/COL/data/temp_estimate_mpio.rds")
+temp_estimate_mpio <- readRDS("Modelo_bayes_HxA_Hogar/COL/data/Modelo/temp_estimate_mpio.rds")
 
 brks_dim <- round(quantile(
   temp_estimate_mpio$estimate,
@@ -99,11 +100,11 @@ Mapa_ing2 <-
 
 tmap_save(
   Mapa_ing2,
-  "Modelo_bayes_HxA/COL/Output/COL_dims_ipm.jpeg",
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.jpeg",
   width = 6920,
   height = 4080,
   asp = 0
 )
 ```
 
-<img src="Modelo_bayes_HxA/COL/Output/COL_dims_ipm.jpeg" style="display: block; margin: auto;" />
+<img src="Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.jpeg" style="display: block; margin: auto;" />
