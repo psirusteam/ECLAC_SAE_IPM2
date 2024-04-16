@@ -21,3 +21,4 @@ magrittr
 future
 furrr
 kableExtra
+bayesplot
