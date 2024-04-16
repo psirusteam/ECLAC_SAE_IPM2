@@ -3,12 +3,12 @@
 
 Dado que los municipios son otro nivel de desagregción, es posible realizar un mapa municipal para $H$, $A$ e $IPM$. Para realizar el proceso, previamente se guardaron las estimaciones necesarias en un archivo _.rds_ el cual usaremos a continuación:
   
-```{r, echo=TRUE, eval=FALSE}
+
+```r
 library(sf)
 library(tmap)
-estimado_ipm <- readRDS(file = "Modelo_bayes_HxA_Hogar/COL/Data/Modelo/estimado_ipm1.rds")
-temp_estimate_mpio <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/temp_estimate_mpio.rds")
-ShapeSAE <- read_sf("Modelo_bayes_HxA_Hogar/COL/Shape/COL_dam2.shp") 
+estimado_ipm <- readRDS(file = "Modelo_bayes_HxA/COL/Data/estimado_ipm_HA.rds")
+temp_estimate_mpio <- readRDS("Modelo_bayes_HxA/COL/data/temp_estimate_mpio.rds")
 
 brks_H <-
   round(quantile(estimado_ipm$dam2$H, probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)), 2)
@@ -18,13 +18,13 @@ brks_A <-
   round(quantile(estimado_ipm$dam2$A, probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)), 2)
 
 maps3 <- tm_shape(ShapeSAE %>%
-                    left_join(estimado_ipm$dam2,  by = "dam2"))
-
+                    left_join(estimado_ipm,  by = "dam2"))
 ```
 
 Para crear los mapas se usa la siguiente sintaxis 
 
-```{r, echo=TRUE, eval=FALSE}
+
+```r
 thema_map <- tm_layout(legend.only = FALSE,
                 legend.height = -0.5,
                 legend.width = -0.4,
@@ -63,23 +63,21 @@ Mapas <- tmap_arrange(Mapa_H, Mapa_A, Mapa_ipm)
 
 tmap_save(
   Mapas,
-  "Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM.jpeg",
+  "Modelo_bayes_HxA/COL/Output/COL_IPM.jpeg",
   width = 6920,
   height = 4080,
   asp = 0
 )
-
 ```
 
 
-```{r echo=FALSE,out.height="400%",fig.align='center'}
-knitr::include_graphics("Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM.png")
-```
+<img src="Modelo_bayes_HxA/COL/Output/COL_IPM.jpeg" height="400%" style="display: block; margin: auto;" />
 
 ## Mapa municipal por dimensión del IPM
 
-```{r, eval=FALSE}
-temp_estimate_mpio <- readRDS("Modelo_bayes_HxA_Hogar/COL/data/Modelo/temp_estimate_mpio.rds")
+
+```r
+temp_estimate_mpio <- readRDS("Modelo_bayes_HxA/COL/data/temp_estimate_mpio.rds")
 
 brks_dim <- round(quantile(
   temp_estimate_mpio$estimate,
@@ -101,14 +99,11 @@ Mapa_ing2 <-
 
 tmap_save(
   Mapa_ing2,
-  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.jpeg",
+  "Modelo_bayes_HxA/COL/Output/COL_dims_ipm.jpeg",
   width = 6920,
   height = 4080,
   asp = 0
 )
-
 ```
 
-```{r echo=FALSE,fig.align='center'}
-knitr::include_graphics("Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.jpeg")
-```
+<img src="Modelo_bayes_HxA/COL/Output/COL_dims_ipm.jpeg" style="display: block; margin: auto;" />

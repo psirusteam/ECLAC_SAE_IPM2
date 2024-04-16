@@ -36,43 +36,36 @@ La función indicadora $I(\cdot)$ es igual a 1 cuando se cumple la condición $q
 
   
 $$
-  q_{di} = \frac{1}{16}(y_{di}^{1} + y_{di}^{2} + y_{di}^{3} + y_{di}^{4}) + \frac{1}{12}(y_{di}^{5} + y_{di}^{6} + y_{di}^{7}) + \frac{1}{4}(y_{di}^{8} + y_{di}^{9}) 
+  q_{di} = \frac{1}{12}\sum_{k =1}^{12}y_{di}^{k} 
 $$
   
-  Donde: 
+ 
+Donde: 
   
-  a. $y_{di}^{1}$ = Privación en material de construcción de la vivienda
+| Categoría  | Variable          | Descripción                                                                |
+|------------|-------------------|----------------------------------------------------------------------------|
+| Educación  | nbi_hnolee_ee     | Al menos un mayor de 10 años no sabe leer en el hogar                      |
+|            | nbi_hlogroeduc_ee | Todos los integrantes del hogar entre 18 y 64 están privados en la nbi_educ individual |
+|            | nbi_heducninios   | Al menos un menor de edad no asiste o está rezagado                         |
+| Vivienda   | nbi_hhacina       |                                                                             |
+|            | nbi_henergia      |                                                                             |
+|            | nbi_htic          |                                                                             |
+| Salud      | nbi_hagua_ee      |                                                                             |
+|            | nbi_hsaneamiento_ee |                                                                             |
+|            | nbi_hsalud_ee     |                                                                             |
+| Empleo     | nbi_hpartemp      | Al menos un individuo del hogar tiene empleo temporal según la condición y edad |
+|            | nbi_hempe         | Todos los individuos ocupados del hogar cumplen ciertas condiciones de empleo |
+|            | nbi_hjub          | Al menos un individuo del hogar es jubilado según edad y pensión            |
 
-  b. $y_{di}^{2}$ = Hacinamiento en el hogar. 
-
-  c. $y_{di}^{3}$ = Acceso al servicio de Internet.
-
-  d. $y_{di}^{4}$ = Acceso al servicio energía eléctrica. 
-
-  e. $y_{di}^{5}$ = Privación en saneamiento.
-
-  f. $y_{di}^{6}$ = Privación de acceso al agua potable. 
-  
-  g. $y_{di}^{7}$ = Privación en salud. 
-
-  h. $y_{di}^{8}$ = Privación de la educación. 
-
-  i. $y_{di}^{9}$ = Privación del empleo y la protección social.  
-
-Las privaciones anteriores se agrupan por dimensiones como se muestran en la siguiente imagen 
-
-```{r echo=FALSE,out.height="400%",fig.align='center'}
-knitr::include_graphics("Modelo_bayes_HxA/COL/Doc/CEPAL_IPM.png")
-```
 
 
 Los datos de la encuesta y el censo han sido preparados previamente, la información sobre la cual realizaremos la predicción corresponde a Colombia en el 2019 
 
 ```{r, eval=TRUE}
 encuesta_ipm <-
-  readRDS("Modelo_bayes_HxA/COL/Data/encuesta_nbi.rds")
+  readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Encuestas/encuesta_nbi.rds")
 statelevel_predictors_df <-
-  readRDS("Modelo_bayes_HxA/COL/Data/statelevel_predictors_df_dam2.rds") 
+  readRDS("Modelo_bayes_HxA_Hogar/COL/Data/statelevel_predictors_df_dam2.rds") 
 
 byAgrega <- c("dam",
               "dam2",
@@ -86,7 +79,20 @@ byAgrega <- c("dam",
 Agregando la información para los municipios de Colombia para los indicadores que conformarán el IPM
 
 ```{r, eval=TRUE}
-names_ipm <- grep(pattern = "nbi", names(encuesta_ipm),value = TRUE)
+names_ipm <- c(
+  "nbi_hnolee_ee" ,
+  "nbi_hlogroeduc_ee" ,
+  "nbi_heducninios" ,
+  "nbi_hhacina" ,
+  "nbi_henergia" ,
+  "nbi_htic" ,
+  "nbi_hagua_ee" ,
+  "nbi_hsaneamiento_ee" ,
+  "nbi_hsalud_ee" ,
+  "nbi_hpartemp" ,
+  "nbi_hempe" ,
+  "nbi_hjub"
+)  
 
 encuesta_df <- map(setNames(names_ipm,names_ipm),
                    function(y){
@@ -99,20 +105,18 @@ encuesta_df <- map(setNames(names_ipm,names_ipm),
                        inner_join(statelevel_predictors_df,
                                   by = c("dam","dam2"))
                    })
-
-  
 ```
 
 La base resultante quedan de la siguiente forma:
 
 ```{r, echo=FALSE}
 tba(encuesta_df[[names_ipm[1]]] %>% arrange(desc(n)) %>% head(), 
-    cap = "Privaci\'on en material de construcci\'on de la vivienda")
+    cap = names_ipm[1])
 ```
 
 ```{r, echo=FALSE}
 tba(encuesta_df[[names_ipm[2]]] %>% arrange(desc(n)) %>% head(), 
-    cap = "Hacinamiento")
+    cap = names_ipm[2])
 
 ```
 
@@ -147,21 +151,57 @@ formula_mod
 Ejecutando los modelos 
 
 ```{r, eval = FALSE}
-plan(multisession, workers = 4)
+run_bayesian_model <- function(variable, data) {
+  fit <- stan_glmer(
+    formula = formula_mod,
+    family = binomial(link = "logit"),
+    data = data[[variable]],
+    cores = 4,
+    chains = 4,
+    iter = 500,
+    open_progress = TRUE
+  )
+  
+  saveRDS(fit, file = paste0("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/fit_", 
+                             variable, ".rds"))
+}
 
-fit <- future_map(encuesta_df, function(xdat){
-stan_glmer(formula = formula_mod ,
-  family = binomial(link = "logit"),
-  data = xdat,
-  cores = 4,
-  chains = 4,
-  iter = 500
-)}, 
-.progress = TRUE)
-
-saveRDS(object = fit, "Data/fits_IPM.rds")
+for (variable in nbi_hogar) {
+  run_bayesian_model(variable, encuesta_df)
+}
 
 ```
+
+### Prueba del $\hat{R}$
+
+En modelos Bayesianos, la prueba **Rhat** es utilizada para evaluar la convergencia de las cadenas MCMC. La idea es verificar si múltiples cadenas MCMC han convergido al mismo valor de la distribución posterior.
+
+#### Fórmula de Rhat
+
+La fórmula para calcular Rhat es la siguiente:
+
+$$ \hat{R} = \sqrt{\frac{\text{Varianza entre cadenas}}{\text{Varianza dentro de cadenas}}} $$
+
+Donde:
+- Varianza entre cadenas: Varianza de los valores de un parámetro entre todas las cadenas MCMC.
+- Varianza dentro de cadenas: Varianza de los valores de un parámetro dentro de cada cadena MCMC.
+
+#### Interpretación de Rhat
+
+- Si $\hat{R}$ es cercano a 1, indica buena convergencia de las cadenas.
+- Valores mayores a 1.1 pueden indicar problemas de convergencia y la necesidad de revisar las cadenas y el modelo.
+
+```{r}
+library(rstantools)
+library(bayesplot)
+for(ii in 1:12){
+modelo_rds <- paste0("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/fit_", names_ipm[ii], ".rds")
+s <- rhat(readRDS(modelo_rds))
+s <- mcmc_rhat(s) + ggtitle(names_ipm[ii]) 
+print(s)
+}
+```
+
 
 Terminado la compilación de los modelos después de realizar validaciones sobre esto, pasamos hacer las predicciones en el censo. 
 
@@ -170,368 +210,124 @@ Terminado la compilación de los modelos después de realizar validaciones sobre
 Los modelos fueron compilados de manera separada, por tanto, disponemos de un objeto `.rds` por cada dimensión del IPM 
 
 ```{r, eval=FALSE}
+crear_epred_mat_dummy <- function(variable, newdata) {
+  # Paso 1: Cargar el modelo
+  modelo_rds <- paste0("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/fit_", variable, ".rds")
+  ruta_guardado <- paste0("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_", variable, ".rds")
+  fit <- readRDS(file = modelo_rds)
+  
+  # Paso 2: Generar epred_mat
+  epred_mat <- posterior_epred(
+    fit,
+    newdata = newdata,
+    type = "response",
+    allow.new.levels = TRUE
+  )
+  
+  # Paso 3: Generar epred_mat_dummy
+  epred_mat_dummy <- rbinom(n = nrow(epred_mat) * ncol(epred_mat), 1, epred_mat)
+  epred_mat_dummy <- matrix(epred_mat_dummy, nrow = nrow(epred_mat), 
+                            ncol = ncol(epred_mat))
+  
+  # Guardar epred_mat_dummy como un archivo .rds
+  saveRDS(epred_mat_dummy, file = ruta_guardado)
+  cat(ruta_guardado, "\n")
 
-fit_agua <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_agua.rds")
-fit_educacion <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_educacion.rds")
-fit_empleo <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_empleo.rds")
-fit_energia <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_energia.rds")
-fit_hacinamiento <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_hacina.rds")
-fit_tic <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_tic.rds")
-fit_material <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_matviv.rds")
-fit_saneamiento <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_saneamiento.rds")
-fit_salud <-
-  readRDS(file = "Modelo_bayes_HxA/COL/Data/fit_salud.rds")
+}
 
 
 ```
 
-
-Ahora, debemos leer la información del censo  y crear los **post-estrato **
-```{r}
-censo_ipm <- readRDS("Modelo_bayes_HxA/COL/Data/censo_COL.rds") %>%
-  rename(dam = depto, dam2 = mpio) %>%
-  group_by(dam,   dam2,  area,  sexo,  edad,  etnia, anoest) %>%
-  summarise(n = sum(n), .groups = "drop")
-
-statelevel_predictors_df <-
-  readRDS("Modelo_bayes_HxA/COL/Data/statelevel_predictors_df_dam2.rds") 
-
-```
-
-Para realizar la predicción en el censo debemos incluir la información auxiliar 
-
-```{r}
-poststrat_df <- left_join(censo_ipm, statelevel_predictors_df,
-                          by = c("dam", "dam2")) 
-
-```
+Note que la función se encarga de leer los modelos que fueron estimados previamente, luego se obtienen las $L$ predicciones de $\pi_{di}^{kl}$,
 
 
-Para cada uno de los modelos anteriores debe tener las $L$ predicciones de $\pi_{di}^{kl}$,
-
--   Privación de acceso al agua potable. 
 ```{r, eval=FALSE}
-temp <- poststrat_df 
-epred_mat_agua <- posterior_epred(
+epred_mat <- posterior_epred(
   fit_agua,
-  newdata = temp,
+  newdata = newdata,
   type = "response",
   allow.new.levels = TRUE
 )
 ```
 
--   Privación de la educación.
-
-```{r, eval =FALSE}
-epred_mat_educacion <-
-  posterior_epred(
-    fit_educacion,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-```
-
--   Privación del empleo y la protección social.
-
-```{r, echo=TRUE, eval=FALSE}
-epred_mat_empleo <-
-  posterior_epred(
-    fit_empleo,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-```
-
--   Acceso al servicio energía eléctrica.
-
-```{r, echo=TRUE, eval=FALSE}
-epred_mat_energia <-
-  posterior_epred(
-    fit_energia,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-```
-
--    Hacinamiento en el hogar.
-
-```{r, echo=TRUE, eval=FALSE}
-epred_mat_hacinamiento <-
-  posterior_epred(
-    fit_hacinamiento,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-```
-
--   Acceso al servicio de Internet.
-
-```{r, echo=TRUE, eval=FALSE}
-epred_mat_internet <-
-  posterior_epred(
-    fit_internet,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-```
-
--   Privación en material de construcción de la vivienda
-
-```{r, echo=TRUE, eval =FALSE}
-epred_mat_material <-
-  posterior_epred(
-    fit_material,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-```
-
--   Privación en saneamiento.
-
-```{r, echo=TRUE, eval = FALSE}
-epred_mat_saneamiento <-
-  posterior_epred(
-    fit_saneamiento,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-
-```
-
--   Privación en Salud.
-
-```{r, echo=TRUE, eval = FALSE}
-epred_mat_saneamiento <-
-  posterior_epred(
-    fit_salud,
-    newdata = temp,
-    type = "response",
-    allow.new.levels = TRUE
-  )
-
-```
-
-```{r, echo=FALSE, eval=FALSE}
-saveRDS(epred_mat_agua, "Modelo_bayes_HxA/COL/Data/epred_mat_agua.rds")
-saveRDS(epred_mat_educacion, "Modelo_bayes_HxA/COL/Data//epred_mat_educacion.rds")
-saveRDS(epred_mat_empleo, "Modelo_bayes_HxA/COL/Data//epred_mat_empleo.rds")
-saveRDS(epred_mat_energia, "Modelo_bayes_HxA/COL/Data//epred_mat_energia.rds")
-saveRDS(epred_mat_hacinamiento, "Modelo_bayes_HxA/COL/Data//epred_mat_hacinamiento.rds")
-saveRDS(epred_mat_tic, "Modelo_bayes_HxA/COL/Data/epred_mat_tic.rds")
-saveRDS(epred_mat_material, "Modelo_bayes_HxA/COL/Data/epred_mat_material.rds")
-saveRDS(epred_mat_saneamiento, "Modelo_bayes_HxA/COL/Data/epred_mat_saneamiento.rds")
-saveRDS(epred_mat_salud, "Modelo_bayes_HxA/COL/Data/epred_mat_salud.rds")
+Los resultados anteriores se deben procesarse para obtener los hard estimates, es decir, términos de carencia (1) y  no carencia (0) para la $k-esima$ carencias. Lo que se realiza con el código
 
 
-```
 
-## Definiendo los hard estimates
-
-Los resultados anteriores se deben procesarse para obtener los hard estimates, es decir, términos de carencia (1) y  no carencia (0) para la $k-esima$ dimensión . 
-
--    Privación de acceso al agua potable. 
-
-
-```{r,eval=FALSE}
-epred_mat_agua_dummy <-
-  rbinom(n = nrow(epred_mat_agua) * ncol(epred_mat_agua) , 1,
-         epred_mat_agua)
-
-epred_mat_agua_dummy <- matrix(
-  epred_mat_agua_dummy,
-  nrow = nrow(epred_mat_agua),
-  ncol = ncol(epred_mat_agua)
-)
-```
-
--   Privación de la educación.
-
-
-```{r,eval=FALSE}
-epred_mat_educacion_dummy <-
-  rbinom(n = nrow(epred_mat_educacion) * ncol(epred_mat_educacion) ,
-         1,
-         epred_mat_educacion)
-
-epred_mat_educacion_dummy <- matrix(
-  epred_mat_educacion_dummy,
-  nrow = nrow(epred_mat_educacion),
-  ncol = ncol(epred_mat_educacion)
-)
-```
-
--    Acceso al servicio energía eléctrica 
-
-
-```{r,eval=FALSE}
-epred_mat_energia_dummy <-
-  rbinom(n = nrow(epred_mat_energia) * ncol(epred_mat_energia) ,
-         1,
-         epred_mat_energia)
-
-epred_mat_energia_dummy <- matrix(
-  epred_mat_energia_dummy,
-  nrow = nrow(epred_mat_energia),
-  ncol = ncol(epred_mat_energia)
-)
-```
-
--   Hacinamiento en el hogar.
-
-
-```{r,echo = TRUE,eval=FALSE}
-epred_mat_hacinamiento_dummy <-
-  rbinom(
-    n = nrow(epred_mat_hacinamiento) * ncol(epred_mat_hacinamiento) ,
-    1,
-    epred_mat_hacinamiento
-  )
-
-epred_mat_hacinamiento_dummy <-
-  matrix(
-    epred_mat_hacinamiento_dummy,
-    nrow = nrow(epred_mat_hacinamiento),
-    ncol = ncol(epred_mat_hacinamiento)
-  )
-```
-
--   Acceso al servicio de Internet.
-
-
-```{r,echo = TRUE,eval=FALSE}
-epred_mat_internet_dummy <-
-  rbinom(n = nrow(epred_mat_internet) * ncol(epred_mat_internet) ,
-         1,
-         epred_mat_internet)
-
-epred_mat_internet_dummy <- matrix(
-  epred_mat_internet_dummy,
-  nrow = nrow(epred_mat_internet),
-  ncol = ncol(epred_mat_internet)
-)
-```
-
--   Privación en material de construcción de la vivienda 
-
-
-```{r, echo = TRUE,eval=FALSE}
-epred_mat_material_dummy <-
-  rbinom(n = nrow(epred_mat_material) * ncol(epred_mat_material) ,
-         1,
-         epred_mat_material)
-
-epred_mat_material_dummy <- matrix(
-  epred_mat_material_dummy,
-  nrow = nrow(epred_mat_material),
-  ncol = ncol(epred_mat_material)
-)
-```
-
--   Privación en saneamiento. 
-
-
-```{r, echo = TRUE, eval=FALSE}
-epred_mat_saneamiento_dummy <-
-  rbinom(n = nrow(epred_mat_saneamiento) * ncol(epred_mat_saneamiento) ,
-         1,
-         epred_mat_saneamiento)
-
-epred_mat_saneamiento_dummy <- matrix(
-  epred_mat_saneamiento_dummy,
-  nrow = nrow(epred_mat_saneamiento),
-  ncol = ncol(epred_mat_saneamiento)
-)
-```
-
--   Privación del empleo y la protección social. 
-
-
-```{r, echo = TRUE, eval=FALSE}
-epred_mat_empleo_dummy <-
-  rbinom(n = nrow(epred_mat_empleo) * ncol(epred_mat_empleo) ,
-         1,
-         epred_mat_empleo)
-
-epred_mat_empleo_dummy <- matrix(
-  epred_mat_empleo_dummy,
-  nrow = nrow(epred_mat_empleo),
-  ncol = ncol(epred_mat_empleo)
-)
-
-```
-
--   Privación en Salud. 
-
-
-```{r, echo = TRUE, eval=FALSE}
-epred_mat_salud_dummy <-
-  rbinom(n = nrow(epred_mat_salud) * ncol(epred_mat_salud) ,
-         1,
-         epred_mat_salud)
-
-epred_mat_salud_dummy <- matrix(
-  epred_mat_salud_dummy,
-  nrow = nrow(epred_mat_salud),
-  ncol = ncol(epred_mat_salud)
-)
-
+```{r, eval=FALSE}
+ epred_mat_dummy <- rbinom(n = nrow(epred_mat) * ncol(epred_mat), 1, epred_mat)
+  epred_mat_dummy <- matrix(epred_mat_dummy, nrow = nrow(epred_mat), 
+                            ncol = ncol(epred_mat))
 ```
 
 
-```{r, echo=FALSE, eval=FALSE}
-saveRDS(epred_mat_agua_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_agua_dummy.rds")
-saveRDS(epred_mat_educacion_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_educacion_dummy.rds")
-saveRDS(epred_mat_empleo_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_empleo_dummy.rds")
-saveRDS(epred_mat_energia_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_energia_dummy.rds")
-saveRDS(epred_mat_hacinamiento_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_hacinamiento_dummy.rds")
-saveRDS(epred_mat_tic_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_tic_dummy.rds")
-saveRDS(epred_mat_material_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_material_dummy.rds")
-saveRDS(epred_mat_saneamiento_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_saneamiento_dummy.rds")
-saveRDS(epred_mat_salud_dummy, "Modelo_bayes_HxA/COL/Data/epred_mat_salud_dummy.rds")
+Ahora, debemos leer la información del censo  y crear los **post-estrato **
 
+```{r, eval=TRUE}
+censo_ipm <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Censo/censo_COL.rds") %>%
+  rename(dam = depto, dam2 = mpio) %>%
+  group_by(dam,   dam2,  area,  sexo,  edad,  etnia, anoest) %>%
+  summarise(n = sum(n), .groups = "drop")
+
+statelevel_predictors_df <-
+  readRDS("Modelo_bayes_HxA_Hogar/COL/Data/statelevel_predictors_df_dam2.rds") 
 ```
+
+Para realizar la predicción en el censo debemos incluir la información auxiliar 
+
+
+```{r, eval=TRUE}
+poststrat_df <- left_join(censo_ipm, statelevel_predictors_df,
+                          by = c("dam", "dam2")) 
+```
+
+Ahora, para obtener los  **hard estimates** usamos el siguinte código 
+
+
+```{r, eval=FALSE}
+for(ii in 1:12){
+crear_epred_mat_dummy(names_ipm[ii],poststrat_df) # OK  
+}
+```
+
+
 
 ## Calculando $q_{di}^{l}$, $I\left( q_{di}^{l} \ge z \right)$ y $c_{di}^{l}\left(z\right)$
 
 Dado que los hard estimates fueron organizados en matrices, el calculo de $q^{l}_{id}$ es una simple operación matricial la cual se muestra a continuación 
 ```{r, eval=FALSE}
+epred_mat_dummy_hnolee <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hnolee_ee.rds")
+epred_mat_dummy_hlogroeduc <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hlogroeduc_ee.rds")
+epred_mat_dummy_heducninios <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_heducninios.rds")
+epred_mat_dummy_hhacina <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hhacina.rds")
+epred_mat_dummy_henergia <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_henergia.rds")
+epred_mat_dummy_htic <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_htic.rds")
+epred_mat_dummy_hagua <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hagua_ee.rds")
+epred_mat_dummy_hsaneamiento <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hsaneamiento_ee.rds")
+epred_mat_dummy_hsalud <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hsalud_ee.rds")
+epred_mat_dummy_hpartemp <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hpartemp.rds")
+epred_mat_dummy_hempe <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hempe.rds")
+epred_mat_dummy_hjub <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hjub.rds")
+```
+
+```{r, eval=FALSE}
 chain_q  <-
-  # Vivienda y servicios
-  (1 / 16) * (
-    epred_mat_material_dummy +
-      epred_mat_hacinamiento_dummy +
-      epred_mat_energia_dummy +
-      epred_mat_tic_dummy
-  ) +
-  # Salud
-  (1 / 12) * (epred_mat_agua_dummy +
-                epred_mat_saneamiento_dummy +
-                epred_mat_salud_dummy) +
-  # Educación
-  (1 / 4) * epred_mat_educacion_dummy  +
-  # Empleo
-  (1 / 4) * epred_mat_empleo_dummy
-
-
+(1/12)*(epred_mat_dummy_hnolee +
+epred_mat_dummy_hlogroeduc +
+epred_mat_dummy_heducninios +
+epred_mat_dummy_hhacina +
+epred_mat_dummy_henergia +
+epred_mat_dummy_htic +
+epred_mat_dummy_hagua +
+epred_mat_dummy_hsaneamiento +
+epred_mat_dummy_hsalud +
+epred_mat_dummy_hpartemp +
+epred_mat_dummy_hempe +
+epred_mat_dummy_hjub )
 ```
 
 ```{r,echo=FALSE}
-chain_q <- readRDS("Modelo_bayes_HxA/COL/Data/chain_q.rds")
+chain_q <- readRDS("Modelo_bayes_HxA_Hogar/COL/Data/Modelo/chain_q.rds")
 
 ```
 
@@ -608,7 +404,7 @@ tba(estimacion, "Estimaciones Nacionales")
 Para realizar las estimaciones desagregadas se desarrollo una función que facilita el calculo, la estructura general el proceso es repetir el proceso anterior por subgrupos, por ejemplo, departamento (*dam*)
 
 ```{r}
-source("Modelo_bayes_HxA/0funciones/Estimar_ipm.R")
+source("Modelo_bayes_HxA_Hogar/0funciones/Estimar_ipm.R")
 ipm_dam <- estime_IPM(
   poststrat = censo_ipm,
   chain_ci = chain_ci,
@@ -656,7 +452,7 @@ Dado que el Índice de Pobreza Multidimensional (IPM) está compuesto por divers
 
 El proceso de cálculo se basa en una media ponderada y se aplica a la dimensión de **Hacinamiento**, siguiendo una lógica similar para las demás dimensiones del IPM.
 ```{r, echo=FALSE}
-epred_mat_hacinamiento_dummy <- readRDS("Modelo_bayes_HxA/COL/Data/epred_mat_hacinamiento_dummy.rds")
+epred_mat_hacinamiento_dummy <- readRDS("Modelo_bayes_HxA_hogar/COL/Data/Modelo/epred_mat_dummy_nbi_hhacina.rds")
 ```
 
 
@@ -677,7 +473,7 @@ tba(datos, "Estimaciones nacional para  Hacinamiento")
 Con el objetivo de agilizar el proceso de calculo se define crea la función **agregado_dim_ipm** que hace los cálculos. La forma de uso es la siguiente. 
 
 ```{r,}
-source("Modelo_bayes_HxA/0funciones/agregado_dim_ipm.r")
+source("Modelo_bayes_HxA_Hogar/0funciones/agregado_dim_ipm.r")
 datos_dam_haci <- agregado_dim_ipm(poststrat = censo_ipm,
            epredmat = epred_mat_hacinamiento_dummy,
            byMap = "dam")
@@ -691,7 +487,7 @@ tba(datos_dam_haci, "Estimaciones por departamento para Hacinamiento")
 
 El resultado por municipio y para todas las dimensiones se muestra en la siguiente tabla
 ```{r, echo=FALSE}
-temp_estimate_mpio <- readRDS("Modelo_bayes_HxA/COL/data/temp_estimate_mpio.rds")
+temp_estimate_mpio <- readRDS("Modelo_bayes_HxA_Hogar/COL/data/Modelo/temp_estimate_mpio.rds")
 
 temp <- spread(temp_estimate_mpio %>% select(-estimate_se),
        key = "Indicador",value = "estimate") %>% 
@@ -704,7 +500,7 @@ tba(temp, cap = "Estimacion puntual por municipio y dimension")
 temp <- spread(temp_estimate_mpio %>% select(-estimate),
        key = "Indicador",value = "estimate_se") %>% 
   rename_if(is.numeric, .funs = function(x)paste0(x,"_se")) %>% head(10)
-tba(temp, cap = "Error de estimacion por municipio y dimension")
+tba(temp, cap = "Error de estimacion por municipio y carencia")
 
 ```
 
