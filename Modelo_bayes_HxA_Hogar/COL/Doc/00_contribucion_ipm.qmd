@@ -1,0 +1,184 @@
+---
+title: "Contribución al IPM por dimensión"
+author: "Andrés Gutiérrez"
+date: ""
+format: 
+  beamer:
+    aspectratio: 1610
+    fonttheme: professionalfonts
+    fontsize: 12pt
+    lang: ES
+toc: true
+---
+
+# Introducción
+
+## Lista de privaciones que forman el IPM
+
+![Lista de dimensiones y privaciones para el ipm](00_imagenes/00_dimensiones_ipm.png){fig-align="center"}
+
+<!-- ## Cálculo del IPM Global -->
+
+<!-- -   **Identificación de Privaciones**: -->
+
+<!--     -   Determinación de los hogares o individuos que sufren privaciones en cada indicador. -->
+
+<!--     -   Definición de umbrales para considerar a una persona como privada en un indicador. -->
+
+<!-- -   **Agregación de Privaciones**: -->
+
+<!--     -   Las privaciones se suman considerando los pesos de cada indicador. -->
+
+<!--     -   Se define un umbral de pobreza multidimensional para identificar a los pobres. -->
+
+<!--     -   Cálculo del IPM global como la suma ponderada de las privaciones en toda la población. -->
+
+## Cálculo de la Contribución por Dimensión
+
+-   **Contribución por Dimensión**: Proceso para descomponer el IPM global en sus componentes de dimensión.
+-   **Fórmula de Contribución**: $$ C_d = \frac{\sum w_{di} \times H_{di}}{IPM} $$ Donde:
+    -   $C_d$ es la contribución de la dimensión $d$,
+    -   $w_{di}$ es el peso del indicador $i$ dentro de la dimensión $d$,
+    -   $H_{di}$ es la proporción de personas pobres con privaciones en el indicador $i$,
+    -   $IPM$ es el índice de pobreza total.
+
+# Modelo de unidad
+
+## Modelo de unidad por privación
+
+El modelo con **efectos aleatorios** y **efectos fijos** se puede expresar matemáticamente de la siguiente forma:
+
+Sea $y_{ij}$ la variable respuesta binaria de presencia o ausencia de la privación, el modelo de unidad estimado se define como:
+
+$$
+y_{ij} = \alpha_0 + (\alpha_{\text{dam}_i} + \alpha_{\text{etnia}_i} + \alpha_{\text{edad}_i} + \alpha_{\text{anoest}_i}) + \sum_{k=1}^{K} \beta_k \times x_{k,ij} + \epsilon_{ij}
+$$
+
+## Efectos Aleatorios
+
+-   $\alpha_{\text{dam}_i}$ es el efecto aleatorio asociado al departamento para el individuo $i$ con 24 niveles,
+
+-   $\alpha_{\text{etnia}_i}$ es el efecto aleatorio asociado con la variable $\text{etnia}$ con 3 niveles.
+
+-   $\alpha_{\text{edad}_i}$ es el efecto aleatorio asociado con la edad del individuo $i$ con 4 niveles
+
+-   $\alpha_{\text{anoest}_i}$ es el efecto aleatorio asociado con los años de escolaridad con 4 niveles
+
+## Efectos Fijos
+
+Los efectos fijos incluyen todas las variables que afectan de manera constante a todos los individuos, modeladas por los coeficientes $\beta$:
+
+$$
+\beta_1 \times \text{sexo}_{ij} + \beta_2 \times \text{area}_{ij} + \beta_3 \times \text{area1}_{ij}  + \dots + \beta_k \times \text{(rezago escolar)}_{ij}
+$$
+
+Donde cada $\beta_k$ representa el coeficiente asociado a cada variable explicativa $x_k$ (por ejemplo, $\beta_1$ para $\text{sexo}$, $\beta_2$ para $\text{area}$, etc.).
+
+## Listado de covariables
+
+| **Variable** | **Descripción**                                    |
+|:------------:|----------------------------------------------------|
+|    `sexo`    | Sexo del individuo                                 |
+|    `area`    | Tipo de área (urbana o rural)                      |
+|   `area1`    | Porcentaje de personas en el área urbana           |
+|   `sexo2`    | Porcentaje de mujeres                              |
+|   `edad2`    | Porcentaje de personas en el rango de 15 a 30 años |
+|   `edad3`    | Porcentaje de personas en el rango de 30 a 45 años |
+|   `edad4`    | Porcentaje de personas en el rango de 45 a 65 años |
+|   `edad5`    | Porcentaje de personas mayor a 65 años de edad     |
+
+: Variables
+
+## Listado de covariables
+
+| **Variable**   | **Descripción**                                                     |
+|-------------------|-----------------------------------------------------|
+| `etnia1`       | Porcentaje de personas que se auto reconocen como indígenas         |
+| `etnia2`       | Porcentaje de personas que se auto reconocen como afrodescendientes |
+| `anoest2`      | Porcentaje de personas con hasta 6 años de estudio                  |
+| `anoest3`      | Porcentaje de personas con hasta 12 años de estudio                 |
+| `anoest4`      | Porcentaje de personas con 12 o más años de estudio                 |
+| `piso_tierra`  | Porcentaje de viviendas con piso de tierra                          |
+| `alfabeta`     | Porcentaje de personas alfabetizadas                                |
+| `hacinamiento` | Porcentaje de personas que viven en condición de hacinamiento       |
+
+: Variables
+
+## Listado de covariables
+
+| **Variable**                  | **Descripción**                                                      |
+|---------------------------------|---------------------------------------|
+| `tasa_desocupacion`           | Tasa de desocupación                                                 |
+| `luces_nocturnas`             | Intensidad de luces nocturnas                                        |
+| `cubrimiento_cultivo`         | Cobertura de cultivos en la zona                                     |
+| `cubrimiento_urbano`          | Cobertura urbana                                                     |
+| `modificacion_humana`         | Modificaciones humanas en el entorno                                 |
+| `accesibilidad_hospitales`    | Accesibilidad a hospitales                                           |
+| `accesibilidad_hosp_caminado` | Accesibilidad a hospitales caminando                                 |
+| `carencia_alcantarillado`     | Porcentaje de personas con carencia en alcantarillado en la vivienda |
+
+: Variables
+
+## Listado de covariables
+\footnotesize
+
+| **Variable**            | **Descripción**                                                         |
+|------------------------|-----------------------------------------------|
+| `carencia_sanitario`    | Porcentaje de personas con carencia en baño o sanitario en la vivienda  |
+| `carencia_electricidad` | Porcentaje de personas con carencia en electricidad en la vivienda      |
+| `carencia_acueducto`    | Porcentaje de personas con carencia en acueducto en la vivienda         |
+| `carencia_gas`          | Porcentaje de personas con carencia en gas en la vivienda               |
+| `carencia_internet`     | Porcentaje de personas con carencia en acceso a Internet en la vivienda |
+| `eliminar_basura`       | Porcentaje de personas con carencia en eliminación de basura            |
+| `material_paredes`      | Porcentaje de personas con carencia en el material de las paredes       |
+| `rezago_escolar`        | Porcentaje de personas con rezago escolar                               |
+
+: Variables
+
+## Calibración de H, A y M0 usando la agregación de área (urbana/rural)
+
+![Resultado de la calibración de H, A y M0](00_imagenes/01_Calibracion_AH_IPM.png){fig-align="center" width="65%"}
+
+## Resultado de la calibración
+
+| Elemento | Sample | Model Bench | Model  | Lim Inf | Lim Sup |
+|----------|--------|-------------|--------|---------|---------|
+| H        | 0.205  | 0.205       | 0.169  | 0.203   | 0.206   |
+| A        | 0.503  | 0.503       | 0.488  | 0.502   | 0.504   |
+| M0       | 0.103  | 0.103       | 0.0827 | 0.102   | 0.104   |
+
+## Contribuciones calculadas después de la calibración de H, A y M0
+
+![Contribuciones calculadas con la muestra y con la predicción en el censo](00_imagenes/02_contribucion_nacional.png){fig-align="center" width="75%"}
+
+## Calculo de H, A y M0 por departamento.
+
+![Calculos de H, A y M0 por DAM](00_imagenes/03_resultados_dam_AH_M0.png){fig-align="center" width="70%"}
+
+## Comparación de las privaciones observadas en la encuesta y las predicciones
+
+![Comparación de las privaciones entre la encuesta y la predicción del censo por departamento](00_imagenes/04_Comparacion_contribuciones.png){fig-align="center" width="80%"}
+
+## Comparando las contribuciones de las privaciones de forma individual.
+
+![Resultados para hnolee , hlogroeduc y heducninios](00_imagenes/05_contribucion1_dam_calib_area.png){fig-align="center" width="70%"}
+
+## Comparando las contribuciones de las privaciones de forma individual.
+
+![Resultados para hhacina , henergia , htic](00_imagenes/06_contribucion2_dam_calib_area.png){fig-align="center" width="70%"}
+
+## Comparando las contribuciones de las privaciones de forma individual.
+
+![Resultados para hagua , hsaneamiento, hsalud](00_imagenes/07_contribucion3_dam_calib_area.png){fig-align="center" width="70%"}
+
+## Comparando las contribuciones de las privaciones de forma individual.
+
+![Resultados para hpartemp , hempe , hjub](00_imagenes/08_contribucion4_dam_calib_area.png){fig-align="center" width="70%"}
+
+## Mapa de colombia H, A y M0.
+
+![Resultados](00_imagenes/09_COL_IPM.png){fig-align="center" width="80%"}
+
+## Mapa por Municipios
+
+![Resultados](00_imagenes/10_COL_dims_ipm.jpeg){fig-align="center" width="80%"}

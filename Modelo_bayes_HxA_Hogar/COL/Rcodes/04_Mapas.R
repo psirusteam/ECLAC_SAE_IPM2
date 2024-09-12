@@ -19,7 +19,7 @@ library(tmap)
 library(openxlsx)
 library(sf)
 
-estimado_ipm <- readRDS(file = "Modelo_bayes_HxA_Hogar/COL/Data/Modelo/estimado_ipm1.rdas")
+estimado_ipm <- readRDS(file = "Modelo_bayes_HxA_Hogar/COL/Data/Modelo/estimado_ipm1.rds")
 temp_estimate_mpio <- readRDS("Modelo_bayes_HxA_Hogar/COL/data/Modelo/temp_estimate_mpio.rds")
 
 ShapeSAE <- read_sf("Modelo_bayes_HxA_Hogar/COL/Shape/COL_dam2.shp") 
