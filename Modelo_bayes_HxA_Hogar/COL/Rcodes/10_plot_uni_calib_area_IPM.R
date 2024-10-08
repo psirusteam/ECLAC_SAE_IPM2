@@ -170,12 +170,12 @@ ggsave(plot = p3,
        width = 18,height = 14
 )
 
-ggsave(plot = p2,
-  filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/nacional_calib_area.png",
+ggsave(plot = p1,
+  filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/01_Calibracion_AH_IPM.png",
        width = 18,height = 14
         )
-ggsave(plot = p1,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/nacional_calib_area.png",
+ggsave(plot = p2,
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/02_contribucion_nacional.png",
        width = 18,height = 14
 )
 ################################################################################
@@ -189,9 +189,9 @@ contribuciones_censo <-
                       sheet = "contribuciones")
 ## sin bench
 ipm_HA_censo_sin <-
-  openxlsx::read.xlsx("Modelo_bayes_HxA_Hogar/COL/Output/contribuciones_calib_area_dam.xlsx")
+  openxlsx::read.xlsx("Modelo_bayes_HxA_Hogar/COL/Output/contribuciones_dam_sin_bench.xlsx")
 contribuciones_censo_sin <-
-  openxlsx::read.xlsx("Modelo_bayes_HxA_Hogar/COL/Output/contribuciones_calib_area_dam.xlsx",
+  openxlsx::read.xlsx("Modelo_bayes_HxA_Hogar/COL/Output/contribuciones_dam_sin_bench.xlsx",
                       sheet = "contribuciones")
 
 
@@ -252,6 +252,13 @@ ggsave(plot = p1,
        filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/ipm_dam_calib_area.png",
        width = 20,height = 14
 )
+
+
+ggsave(plot = p1,
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/03_resultados_dam_AH_M0.png",
+       width = 20,height = 14
+)
+
 
 tab_dir <- resul_dam %>% map_dfr( ~ .x$contribuciones, .id = "dam")  %>% 
    separate(col = "nbi", into = c("tipo", "nbi"),sep = "_" ) %>% 
@@ -364,6 +371,26 @@ p24 <- ggplot(tab_plot1, aes(x = dam, y = estimacion, color = tipo)) +
 
 
 ggsave(plot = p21,
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/05_contribucion1_dam_calib_area.png",
+       width = 20,height = 14
+)
+
+ggsave(plot = p22,
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/06_contribucion2_dam_calib_area.png",
+       width = 20,height = 14
+)
+
+ggsave(plot = p23,
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/07_contribucion3_dam_calib_area.png",
+       width = 20,height = 14
+)
+
+ggsave(plot = p24,
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/08_contribucion4_dam_calib_area.png",
+       width = 20,height = 14
+)
+
+ggsave(plot = p21,
        filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion1_dam_calib_area.png",
        width = 20,height = 14
 )
@@ -382,6 +409,7 @@ ggsave(plot = p24,
        filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion4_dam_calib_area.png",
        width = 20,height = 14
 )
+
 
 
 p3 <- ggplot(tab_plot %>% mutate(dam2 = paste0(dam,"_", tipo) ), 
