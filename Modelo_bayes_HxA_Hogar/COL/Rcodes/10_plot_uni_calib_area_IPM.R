@@ -114,17 +114,20 @@ tab_censo <- bind_rows(tab_censo,tab_censo_sin)
 p1 <- ggplot(tab_censo, aes(x = elemento, y = estimacion, color = tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Estimaciones con Intervalo de Confianza para M0, H y A",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Results of the estimation of the M0, H, and A",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir,
               aes(x = elemento, y = estimacion, color = tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_minimal(base_size = 20)  # Usar un tema minimalista
+  # geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_minimal(base_size = 20) + # Usar un tema minimalista
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 tab_dir %>% select(-low,   -upp) %>% bind_rows(tab_censo) %>% 
   pivot_wider(names_from = tipo, values_from = estimacion) %>% 
@@ -151,31 +154,34 @@ tab_plot <- bind_rows(tab_censo, tab_censo_sin)
 p2 <- ggplot(tab_plot, aes(x = nbi, y = estimado, color = tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Contribution",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir,
               aes( x = nbi, y = estimado, color = tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_minimal(base_size = 20)  # Usar un tema minimalista
+  # geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_minimal(base_size = 20) +  # Usar un tema minimalista
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 p3 <- p1/p2
 
 ggsave(plot = p3,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/nacional_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/nacional_calib_area.jpeg",
        width = 18,height = 14
 )
 
 ggsave(plot = p1,
-  filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/01_Calibracion_AH_IPM.png",
+  filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/01_Calibracion_AH_IPM.jpeg",
        width = 18,height = 14
         )
 ggsave(plot = p2,
-       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/02_contribucion_nacional.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/02_contribucion_nacional.jpeg",
        width = 18,height = 14
 )
 ################################################################################
@@ -235,27 +241,30 @@ tab_censo2 <-  bind_rows(tab_censo, tab_censo_sin)
 p1 <- ggplot(tab_censo2, aes(x = dam, y = estimacion,color =  tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +
   labs(
-    title = "Estimaciones con Intervalo de Confianza para M0, H y A",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Results of the estimation of the MPI, H, and A",
+    x = "DAM",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir,
               aes(x = dam, y = estimacion,color =  tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_bw(base_size = 15) + facet_grid(elemento~.,scales = "free_y")
+  # geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_bw(base_size = 15) + facet_grid(elemento~.,scales = "free_y") +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 
 ggsave(plot = p1,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/ipm_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/ipm_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 
 ggsave(plot = p1,
-       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/03_resultados_dam_AH_M0.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/03_resultados_dam_AH_M0.jpeg",
        width = 20,height = 14
 )
 
@@ -295,17 +304,20 @@ tab_dir1 <- tab_dir  %>% filter(nbi %in% c("hnolee" ,  "hlogroeduc" ,  "heducnin
 p21 <- ggplot(tab_plot1, aes(x = dam, y = estimacion, color = tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Contribution",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir1,
               aes(x = dam, y = estimacion,color =  tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+  # geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y") +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 
 tab_plot1 <-  tab_plot %>% filter(nbi %in% c("hhacina"   , "henergia"   , "htic"))
@@ -315,17 +327,20 @@ tab_dir1 <- tab_dir  %>% filter(nbi %in% c("hhacina"   , "henergia"   , "htic"))
 p22 <- ggplot(tab_plot1, aes(x = dam, y = estimacion, color = tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Contribution",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir1,
               aes(x = dam, y = estimacion,color =  tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+  # geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y") +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 
 
@@ -336,17 +351,20 @@ tab_dir1 <- tab_dir  %>% filter(nbi %in% c("hagua"  , "hsaneamiento", "hsalud"))
 p23 <- ggplot(tab_plot1, aes(x = dam, y = estimacion, color = tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Contribution",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir1,
               aes(x = dam, y = estimacion,color =  tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+  # geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y") +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 
 tab_plot1 <-  tab_plot %>% filter(nbi %in% c("hpartemp"  , "hempe"   , "hjub"))
@@ -356,57 +374,60 @@ tab_dir1 <- tab_dir  %>% filter(nbi %in% c("hpartemp"  , "hempe"   , "hjub"))
 p24 <- ggplot(tab_plot1, aes(x = dam, y = estimacion, color = tipo)) +
   geom_jitter(size = 4,position = position_jitter(width = 0.2, height = 0)) +
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Contribution",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir1,
               aes(x = dam, y = estimacion,color =  tipo),
               size = 4,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+  # geom_errorbar(data = tab_dir1,aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")+ 
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 
 
 ggsave(plot = p21,
-       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/05_contribucion1_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/05_contribucion1_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p22,
-       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/06_contribucion2_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/06_contribucion2_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p23,
-       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/07_contribucion3_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/07_contribucion3_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p24,
-       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/08_contribucion4_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/doc/00_imagenes/08_contribucion4_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p21,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion1_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion1_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p22,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion2_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion2_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p23,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion3_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion3_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p24,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion4_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion4_dam_calib_area.jpeg",
        width = 20,height = 14
 )
 
@@ -420,6 +441,6 @@ p3 <- ggplot(tab_plot %>% mutate(dam2 = paste0(dam,"_", tipo) ),
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 ggsave(plot = p3,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam_calib_area.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam_calib_area.jpeg",
        width = 20,height = 14
 )

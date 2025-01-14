@@ -97,34 +97,40 @@ tab_dir <- resul_nacional$ipm_HA %>% select(H,A,M0, matches("_low|_upp")) %>%
   mutate(tipo = "sample")
 
 
-tab_censo <- ipm_HA_censo %>%  select(matches("media")) %>% 
-  pivot_longer(cols = everything(), names_to = "elemento", values_to = "estimacion") %>% 
-  separate(col = "elemento", into = c("elemento", "tipo"),sep = "_" ) %>% 
+tab_censo <- ipm_HA_censo %>%  select(matches("media")) %>%
+  pivot_longer(cols = everything(),
+               names_to = "elemento",
+               values_to = "estimacion") %>%
+  separate(col = "elemento",
+           into = c("elemento", "tipo"),
+           sep = "_") %>%
   mutate(tipo = "censo")
 
 # Crear el gráfico
 p1 <- ggplot(tab_censo, aes(x = elemento, y = estimacion, color = tipo)) +
-  geom_point(size = 3) +  # Añadir puntos para las estimaciones
+  geom_point(size = 3) +  # Add points for the estimates
   labs(
-    title = "Estimaciones con Intervalo de Confianza para M0, H y A",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Results of the estimation of the M0, H, and A",
+    x = "Element",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir,
               aes(x = elemento, y = estimacion, color = tipo),
               size = 3,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
-  theme_minimal()  # Usar un tema minimalista
+  # geom_errorbar(data = tab_dir, aes(ymin = low, ymax = upp), width = 0.2) +
+  theme_minimal() +  # Use a minimalist theme
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 
 
-
-tab_dir <- resul_nacional$contribuciones %>% data.frame(estimacion = .) %>% 
-  tibble::rownames_to_column(var = "nbi") %>% 
+tab_dir <- resul_nacional$contribuciones %>% data.frame() %>% 
+  # tibble::rownames_to_column(var = "nbi") %>% 
   separate(col = "nbi", into = c("tipo", "nbi"),sep = "_" ) %>% 
-  mutate(tipo = "sample")
+  mutate(tipo = "sample") %>% rename(estimacion = estimado)
 
 tab_censo <- contribuciones_censo %>%  select(matches("media")) %>% 
   pivot_longer(cols = everything(), names_to = "nbi", values_to = "estimacion") %>% 
@@ -136,17 +142,25 @@ tab_plot <- bind_rows(tab_dir,tab_censo)
 p2 <- ggplot(tab_plot, aes(x = nbi, y = estimacion, color = tipo)) +
   geom_point(size = 3) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
-  ) +  theme_minimal() 
+    title = "Contribution",
+    x = "Element",
+    y = "Estimate",
+    color = ""
+  ) +  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 p3 <- p2/p1
 
-ggsave(plot = p3,
-  filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/nacional.png",
+ggsave(plot = p1,
+  filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/Nacional_HA.jpeg",
        width = 18,height = 14
         )
+ggsave(plot = p2,
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/Nacional_indicadores.png",
+       width = 18,height = 14
+)
+
 ################################################################################
 ## Dam 
 ################################################################################
@@ -177,30 +191,27 @@ tab_censo <- ipm_HA_censo %>%  select(dam,matches("media")) %>%
 p1 <- ggplot(tab_censo, aes(x = dam, y = estimacion,color =  tipo)) +
   geom_point(size = 3) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Estimaciones con Intervalo de Confianza para M0, H y A",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
+    title = "Results of the estimation of the M0, H, and A",
+    x = "DAM",
+    y = "Estimate",
+    color = ""
   ) +
   geom_jitter(data = tab_dir,
               aes(x = dam, y = estimacion,color =  tipo),
               size = 3,
               position = position_jitter(width = 0.2, height = 0)) +  
-  geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
+  # geom_errorbar(data = tab_dir,aes(ymin = low, ymax = upp), width = 0.2) +
   theme_bw(base_size = 15) + facet_grid(elemento~.,scales = "free_y")
 
 
 ggsave(plot = p1,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/ipm_dam.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/ipm_dam.jpeg",
        width = 20,height = 14
 )
 
 tab_dir <- resul_dam %>% map_dfr( ~ .x$contribuciones, .id = "dam")  %>% 
-  pivot_longer(cols = c( matches("nbi")),
-               names_to = "nbi",
-               values_to = "estimacion") %>% 
    separate(col = "nbi", into = c("tipo", "nbi"),sep = "_" ) %>% 
-  mutate(tipo = "sample")
+  mutate(tipo = "sample") %>% rename(estimacion = estimado    )
 
 tab_censo <- contribuciones_censo %>%  select(dam, matches("media")) %>%
   pivot_longer(
@@ -218,56 +229,68 @@ tab_plot <- bind_rows(tab_dir,tab_censo)
 p21 <- ggplot(tab_plot %>% filter(nbi %in% c("hnolee" ,  "hlogroeduc" ,  "heducninios")), aes(x = dam, y = estimacion, color = tipo)) +
   geom_point(size = 3) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Contribución",
-    x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
-  )  +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+    title = "Contribution",
+    x = "DAM",
+    y = "Estimation",
+    color = ""
+  )  +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y") +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 p22 <- ggplot(tab_plot %>% filter(nbi %in% c("hhacina"   ,   "henergia"   ,  "htic")), aes(x = dam, y = estimacion, color = tipo)) +
   geom_point(size = 3) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Contribución",
+    title = "Contribution",
     x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
-  )  +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+    y = "Estimation",
+    color = ""
+  )  +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")+
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 p23 <- ggplot(tab_plot %>% filter(nbi %in% c("hagua"  ,      "hsaneamiento", "hsalud")), aes(x = dam, y = estimacion, color = tipo)) +
   geom_point(size = 3) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Contribución",
+    title = "Contribution",
     x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
-  )  +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+    y = "Estimation",
+    color = ""
+  )  +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")+
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 p24 <- ggplot(tab_plot %>% filter(nbi %in% c("hpartemp"  ,   "hempe"   ,     "hjub")), aes(x = dam, y = estimacion, color = tipo)) +
   geom_point(size = 3) +  # Añadir puntos para las estimaciones
   labs(
-    title = "Contribución",
+    title = "Contribution",
     x = "Elemento",
-    y = "Estimación",
-    color = "Tipo"
-  ) +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y")
+    y = "Estimation",
+    color = ""
+  ) +  theme_bw(base_size = 15) + facet_grid(nbi~.,scales = "free_y") +
+  theme(
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
 
 ggsave(plot = p21,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion1_dam.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion1_dam.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p22,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion2_dam.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion2_dam.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p23,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion3_dam.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion3_dam.jpeg",
        width = 20,height = 14
 )
 
 ggsave(plot = p24,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion4_dam.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion4_dam.jpeg",
        width = 20,height = 14
 )
 
@@ -280,6 +303,6 @@ p3 <- ggplot(tab_plot %>% mutate(dam2 = paste0(dam,"_", tipo) ),
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 ggsave(plot = p3,
-       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam.png",
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam.jpeg",
        width = 20,height = 14
 )
