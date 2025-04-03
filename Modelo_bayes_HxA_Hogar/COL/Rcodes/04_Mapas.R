@@ -43,7 +43,7 @@ Mapa_H <-
     "H",
     breaks = brks_H,
     title = "H",
-    palette = "YlOrRd",
+    palette = "brewer.yl_or_rd",
     colorNA = "white"
   ) + thema_map
 
@@ -52,7 +52,7 @@ Mapa_A <-
     "A",
     breaks = brks_A,
     title = "A",
-    palette = "YlOrRd",
+    palette = "brewer.yl_or_rd",
     colorNA = "white"
   ) + thema_map
 Mapa_ipm <-
@@ -60,7 +60,7 @@ Mapa_ipm <-
     "IPM",
     breaks = brks_ipm,
     title = "IPM",
-    palette = "YlOrRd",
+    palette = "brewer.yl_or_rd",
     colorNA = "white"
   ) + thema_map
 
@@ -88,18 +88,49 @@ brks_dim <- round(quantile(
   temp_estimate_mpio$estimate,
   probs = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
 ), 2)
+
+var_names <- c(
+  "nbi_hnolee" = "Illiteracy",
+  "nbi_hlogroeduc" = "Educational attainment",
+  "nbi_heducninios" = "Non_attendance or lag",
+  "nbi_hhacina" = "Overcrowding",
+  "nbi_henergia" = "Energy",
+  "nbi_htic" = "Internet access",
+  "nbi_hagua" = "Water",
+  "nbi_hsaneamiento" = "Sanitation",
+  "nbi_hsalud" = "Health insurance",
+  "nbi_hpartemp" = "Labor market participation",
+  "nbi_hempe" = "Quality of employment",
+  "nbi_hjub" = "Pensions"
+)
+
+
+temp_estimate_mpio <- temp_estimate_mpio %>%
+  mutate(Indicador = recode(Indicador, !!!var_names)) 
+
+unique(temp_estimate_mpio$Indicador)
+
 maps2 <- tm_shape(ShapeSAE %>%
                     inner_join(temp_estimate_mpio,  by = "dam2"))
 
-Mapa_ing2 <-
-  maps2 + tm_polygons(
-    "estimate",
-    breaks = brks_dim,
-    title = "",
-    palette = "YlOrRd",
-    colorNA = "white"
-  ) +
-  tm_facets(by = "Indicador", ncol = 5)
+Mapa_ing2 <- 
+  maps2 + 
+  tm_polygons(
+    fill = "estimate",
+    fill.scale = tm_scale(
+      breaks = brks_dim,
+      values = "brewer.yl_or_rd",  # Antes "palette"
+      value.na = "white"           # Antes "colorNA"
+    ),
+    fill.legend = tm_legend(title = "")  # Antes "title"
+  ) + 
+  tm_facets(
+    by = "Indicador", 
+    ncol = 4,
+   titles.var = list(
+      size = 2  # Ajusta este valor (1 = tamaño base)
+    )
+  ) 
 
 tmap_save(
   Mapa_ing2,

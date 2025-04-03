@@ -432,15 +432,16 @@ ggsave(plot = p24,
 )
 
 
-
 p3 <- ggplot(tab_plot %>% mutate(dam2 = paste0(dam,"_", tipo) ), 
        aes(x = dam, y = estimacion, fill = nbi)) +
   geom_bar(stat = "identity", position = "fill") +
   theme_bw(15) +
   facet_grid(tipo~.)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = "", x = "DAM", y = "Estimation")
 
 ggsave(plot = p3,
        filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam_calib_area.jpeg",
        width = 20,height = 14
 )
+contribucion_dam_calib_area

@@ -295,12 +295,39 @@ ggsave(plot = p24,
 )
 
 
+var_names <- c(
+  "hnolee" = "Illiteracy",
+  "hlogroeduc" = "Educational attainment",
+  "heducninios" = "Non attendance or lag",
+  "hhacina" = "Overcrowding",
+  "henergia" = "Energy",
+  "htic" = "Internet access",
+  "hagua" = "Water",
+  "hsaneamiento" = "Sanitation",
+  "hsalud" = "Health insurance",
+  "hpartemp" = "Labor market participation",
+  "hempe" = "Quality of employment",
+  "hjub" = "Pensions"
+)
+
+tipo_names <- c("sample" = "Sample", 
+                "censo" = "Model")
+
+unique(tab_plot$tipo)
+tab_plot <- tab_plot %>%
+  mutate(nbi = recode(nbi, !!!var_names),
+         tipo = recode(tipo, !!!tipo_names)) 
+
+
+
+
 p3 <- ggplot(tab_plot %>% mutate(dam2 = paste0(dam,"_", tipo) ), 
        aes(x = dam, y = estimacion, fill = nbi)) +
   geom_bar(stat = "identity", position = "fill") +
   theme_bw(15) +
   facet_grid(tipo~.)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = "", x = "Major administrative division", y = "")
 
 ggsave(plot = p3,
        filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam.jpeg",
