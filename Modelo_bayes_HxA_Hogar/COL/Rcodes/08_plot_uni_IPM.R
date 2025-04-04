@@ -298,7 +298,7 @@ ggsave(plot = p24,
 var_names <- c(
   "hnolee" = "Illiteracy",
   "hlogroeduc" = "Educational attainment",
-  "heducninios" = "Non attendance or lag",
+  "heducninios" = "Non-attendance or lag",
   "hhacina" = "Overcrowding",
   "henergia" = "Energy",
   "htic" = "Internet access",
@@ -331,5 +331,207 @@ p3 <- ggplot(tab_plot %>% mutate(dam2 = paste0(dam,"_", tipo) ),
 
 ggsave(plot = p3,
        filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam.jpeg",
-       width = 20,height = 14
+       width = 18,height = 12
+)
+
+
+dat_set <- read_sf("Modelo_bayes_HxA_Hogar/COL/Shape/COL_dam2.shp") %>% 
+  data.frame() %>% distinct(dam,dam_name) %>% 
+  mutate(dam_name = ifelse(dam == 11, "BOGOTÁ, D.C.", dam_name))
+
+temp <- tab_plot %>% select(dam : estimacion) %>%
+  pivot_wider(names_from  = "tipo", 
+              values_from = "estimacion", 
+              values_fill = list(estimacion = 0)) %>% 
+  data.frame() %>% 
+  inner_join(dat_set)
+
+tab_2 <- temp %>% filter(Sample == 0) %>% select(-Sample, -dam) %>% 
+  pivot_wider(names_from  = "dam_name", 
+              values_from = "Model", 
+              values_fill = list(Model = 0))
+
+tab_1 <- temp %>% filter(Sample > 0) %>% 
+  transmute(
+    dam_name, nbi,
+    diff_abs  = abs(Sample - Model) ) %>% 
+  pivot_wider(names_from  = "nbi", 
+              values_from = "diff_abs",
+              values_fill = list(Model = 0))
+
+tab_11 <- temp %>% filter(Sample > 0) %>% 
+  transmute(
+    dam_name, nbi,
+    diff_abs  = abs(Sample - Model)/Sample ) %>% 
+  pivot_wider(names_from  = "nbi", 
+              values_from = "diff_abs",
+              values_fill = list(Model = 0))
+
+openxlsx::write.xlsx(
+  list(tab_dif_abs = tab_1, 
+       tab_dif_relativa = tab_11,
+       tab_pred_dam = tab_2), 
+  file = "Modelo_bayes_HxA_Hogar/COL/Doc/01_tablas/00_tablas_dam.xlsx"
+)
+openxlsx::openXL(file = "Modelo_bayes_HxA_Hogar/COL/Doc/01_tablas/00_tablas_dam.xlsx")
+
+
+
+################################################################################
+## Mpios 
+################################################################################
+id_dam <- "81"
+dat_set <- read_sf("Modelo_bayes_HxA_Hogar/COL/Shape/COL_dam2.shp") %>%
+  data.frame() %>% filter(dam == id_dam) %>% 
+  select(dam,dam2, dam2_name) %>% 
+  mutate(orden = 1:n(), 
+         mpios = "Minor adminsitrative divisions")
+
+contribuciones_censo <-
+  openxlsx::read.xlsx("Modelo_bayes_HxA_Hogar/COL/Output/contribuciones_mpios.xlsx",
+                      sheet = "contribuciones")
+
+contribuciones_censo_dam <-
+  openxlsx::read.xlsx("Modelo_bayes_HxA_Hogar/COL/Output/contribuciones_dam.xlsx",
+                      sheet = "contribuciones") %>% 
+  filter(dam == id_dam)
+
+contribuciones_censo2 <- bind_rows(contribuciones_censo_dam, contribuciones_censo) %>%
+  mutate(dam2 = ifelse(is.na(dam2), dam, dam2)) %>%
+  mutate(dam = str_sub(dam2, 1, 2)) %>%
+  filter(dam == id_dam)
+
+
+tab_censo <- contribuciones_censo2 %>%  
+  select(dam2, matches("media")) %>%  
+  pivot_longer(
+    cols = matches("media"),
+    names_to = "nbi", values_to = "estimacion") %>%
+  separate(
+    col = "nbi",
+    into = c("nbi", "tipo"),
+    sep = "_"
+  ) %>%
+  mutate(tipo = "Model")
+
+tab_plot <- tab_censo
+
+var_names <- c(
+  "hnolee" = "Illiteracy",
+  "hlogroeduc" = "Educational attainment",
+  "heducninios" = "Non-attendance or lag",
+  "hhacina" = "Overcrowding",
+  "henergia" = "Energy",
+  "htic" = "Internet access",
+  "hagua" = "Water",
+  "hsaneamiento" = "Sanitation",
+  "hsalud" = "Health insurance",
+  "hpartemp" = "Labor market participation",
+  "hempe" = "Quality of employment",
+  "hjub" = "Pensions"
+)
+
+unique(tab_plot$tipo)
+unique(tab_plot$dam2)
+tab_plot <- tab_plot %>%
+  mutate(nbi = recode(nbi, !!!var_names)) 
+
+tab_plot <-  tab_plot %>% inner_join(dat_set %>%
+                                       bind_rows(
+                                         data.frame(
+                                           dam = id_dam,
+                                           dam2 = id_dam,
+                                           dam2_name = "ARAUCA",
+                                           orden = max(dat_set$orden) +  5, 
+                                           mpios = "MAD"
+                                         )
+                                       ))
+
+levels_originales <- c("ARAUCA"   ,    "ARAUQUITA"  ,  "CRAVO NORTE" , "FORTUL" ,     
+                      "PUERTO RONDÓN", "SARAVENA" ,    "TAME"   )
+
+levels_originales2 <- c("MAD", "Minor adminsitrative divisions")
+
+tab_plot <-  tab_plot %>% 
+  mutate(dam2_name = forcats::fct_reorder(dam2_name, orden),
+         dam2_name = factor(dam2_name, levels = c(levels_originales)),
+         mpios = forcats::fct_reorder(mpios, orden),
+         mpios = factor(mpios, levels = c(levels_originales2))
+         )
+unique(tab_plot$dam2_name)                                
+
+p3 <- ggplot(tab_plot, 
+             aes(x = dam2_name, y = estimacion, fill = nbi)) +
+  geom_bar(stat = "identity", position = "fill",  width = 0.7) +
+  # scale_x_discrete(drop = FALSE)  +
+  theme_bw(15) +
+  facet_grid(tipo ~ mpios, scales = "free_x", space = "free_x") +  # Ajusta espacio
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = "", x = "", y = "")
+p3
+ggsave(plot = p3,
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam_ARAUCA.jpeg",
+       width = 18,height = 12
+)
+
+
+tab_plot <- tab_censo
+
+
+
+var_names <- c(
+  "hnolee" = "Education",
+  "hlogroeduc" = "Education",
+  "heducninios" = "Education",
+  "hhacina" = "Housing",
+  "henergia" = "Health",
+  "htic" = "Housing",
+  "hagua" = "Housing",
+  "hsaneamiento" = "Health",
+  "hsalud" = "Health",
+  "hpartemp" = "Employment and social securuty",
+  "hempe" = "Employment and social securuty",
+  "hjub" = "Employment and social securuty"
+)
+
+
+tab_plot <- tab_plot %>%
+  mutate(nbi = recode(nbi, !!!var_names)) 
+
+tab_plot2 <- tab_plot %>% group_by(dam2, nbi,  tipo ) %>% 
+  summarise(estimacion = sum(estimacion))
+
+
+tab_plot2 <-  tab_plot2 %>%
+  inner_join(dat_set %>%
+               bind_rows(
+                 data.frame(
+                   dam = id_dam,
+                   dam2 = id_dam,
+                   dam2_name = "ARAUCA",
+                   orden = max(dat_set$orden) +   5,
+                   mpios = "MAD"
+                 )
+               ))
+
+tab_plot2 <-  tab_plot2 %>% 
+  mutate(dam2_name = forcats::fct_reorder(dam2_name, orden),
+         dam2_name = factor(dam2_name, levels = c(levels_originales)),
+         mpios = forcats::fct_reorder(mpios, orden),
+         mpios = factor(mpios, levels = c(levels_originales2))
+  )
+
+
+p3 <- ggplot(tab_plot2, 
+             aes(x = dam2_name,
+                 y = estimacion, fill = nbi)) +
+  geom_bar(stat = "identity", position = "fill") +
+  theme_bw(15) +
+  facet_grid(tipo ~ mpios, scales = "free_x", space = "free_x") +  # Ajusta espacio
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = "", x = "", y = "")
+
+ggsave(plot = p3,
+       filename = "Modelo_bayes_HxA_Hogar/COL/Output/plot_contribucion/contribucion_dam_ARAUCA_dim.jpeg",
+       width = 18,height = 12
 )

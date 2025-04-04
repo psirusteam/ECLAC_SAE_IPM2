@@ -29,7 +29,7 @@ brks_ipm <- round(quantile(estimado_ipm$dam2$IPM,probs = c(0,0.2,0.4,0.6,0.8,1))
 brks_A <- round(quantile(estimado_ipm$dam2$A,probs = c(0,0.2,0.4,0.6,0.8,1)),2)
 
 maps3 <- tm_shape(ShapeSAE %>%
-                    left_join(estimado_ipm$dam2,  by = "dam2"))
+                    left_join(estimado_ipm$dam2 %>% rename(PMI = IPM),  by = "dam2"))
 
 thema_map <- tm_layout(legend.only = FALSE,
                        legend.height = -0.5,
@@ -37,49 +37,57 @@ thema_map <- tm_layout(legend.only = FALSE,
                        asp = 1.5,
                        legend.text.size = 5,
                        legend.title.size = 4)
+# Mapa H
+Mapa_H <- maps3 + 
+  tm_polygons(
+    fill = "H",
+    fill.scale = tm_scale(
+      breaks = brks_H,
+      values = "brewer.yl_or_rd",  # Antes palette
+      value.na = "white"           # Antes colorNA
+    ),
+    fill.legend = tm_legend(title = "H")  # Antes title
+  )
 
-Mapa_H <-
-  maps3 + tm_polygons(
-    "H",
-    breaks = brks_H,
-    title = "H",
-    palette = "brewer.yl_or_rd",
-    colorNA = "white"
-  ) + thema_map
+# Mapa A
+Mapa_A <- maps3 + 
+  tm_polygons(
+    fill = "A",
+    fill.scale = tm_scale(
+      breaks = brks_A,
+      values = "brewer.yl_or_rd",
+      value.na = "white"
+    ),
+    fill.legend = tm_legend(title = "A")
+  )
 
-Mapa_A <-
-  maps3 + tm_polygons(
-    "A",
-    breaks = brks_A,
-    title = "A",
-    palette = "brewer.yl_or_rd",
-    colorNA = "white"
-  ) + thema_map
-Mapa_ipm <-
-  maps3 + tm_polygons(
-    "IPM",
-    breaks = brks_ipm,
-    title = "IPM",
-    palette = "brewer.yl_or_rd",
-    colorNA = "white"
-  ) + thema_map
+# Mapa IPM
+Mapa_ipm <- maps3 + 
+  tm_polygons(
+    fill = "PMI",
+    fill.scale = tm_scale(
+      breaks = brks_ipm,
+      values = "brewer.yl_or_rd",
+      value.na = "white"
+    ),
+    fill.legend = tm_legend(title = "MPI")
+  ) 
 
-
-Mapas <- tmap_arrange(Mapa_H, Mapa_A, Mapa_ipm)
-
+Mapas <- tmap_arrange(Mapa_H, Mapa_A, Mapa_ipm,ncol = 3)
+# Mapas
 tmap_save(
   Mapas,
   "Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM.jpeg",
-  width = 6920,
-  height = 4080,
+  width = 5920,
+  height = 3080,
   asp = 0
 )
 
 tmap_save(
   Mapas,
   "Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM.pdf",
-  width = 6920,
-  height = 4080,
+  width = 5920,
+  height = 3080,
   asp = 0
 )
 
@@ -92,7 +100,7 @@ brks_dim <- round(quantile(
 var_names <- c(
   "nbi_hnolee" = "Illiteracy",
   "nbi_hlogroeduc" = "Educational attainment",
-  "nbi_heducninios" = "Non_attendance or lag",
+  "nbi_heducninios" = "Non-attendance or lag",
   "nbi_hhacina" = "Overcrowding",
   "nbi_henergia" = "Energy",
   "nbi_htic" = "Internet access",
@@ -128,7 +136,7 @@ Mapa_ing2 <-
     by = "Indicador", 
     ncol = 4,
    titles.var = list(
-      size = 2  # Ajusta este valor (1 = tamaño base)
+      size = 5  # Ajusta este valor (1 = tamaño base)
     )
   ) 
 
@@ -148,4 +156,44 @@ tmap_save(
   asp = 0
 )
 
+
+################################################################################
+
+maps2 <- tm_shape(ShapeSAE %>%
+                    inner_join(temp_estimate_mpio,  by = "dam2"))
+
+Mapa_ing2 <- 
+  maps2 + 
+  tm_polygons(
+    fill = "estimate",
+    fill.scale = tm_scale(
+      breaks = brks_dim,
+      values = "brewer.yl_or_rd",  # Antes "palette"
+      value.na = "white"           # Antes "colorNA"
+    ),
+    fill.legend = tm_legend(title = "")  # Antes "title"
+  ) + 
+  tm_facets(
+    by = "Indicador", 
+    ncol = 4,
+    titles.var = list(
+      size = 5  # Ajusta este valor (1 = tamaño base)
+    )
+  ) 
+
+tmap_save(
+  Mapa_ing2,
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.jpeg",
+  width = 6920,
+  height = 4080,
+  asp = 0
+)
+
+tmap_save(
+  Mapa_ing2,
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.pdf",
+  width = 6920,
+  height = 4080,
+  asp = 0
+)
 
