@@ -31,12 +31,6 @@ brks_A <- round(quantile(estimado_ipm$dam2$A,probs = c(0,0.2,0.4,0.6,0.8,1)),2)
 maps3 <- tm_shape(ShapeSAE %>%
                     left_join(estimado_ipm$dam2 %>% rename(PMI = IPM),  by = "dam2"))
 
-thema_map <- tm_layout(legend.only = FALSE,
-                       legend.height = -0.5,
-                       legend.width = -0.4,
-                       asp = 1.5,
-                       legend.text.size = 5,
-                       legend.title.size = 4)
 # Mapa H
 Mapa_H <- maps3 + 
   tm_polygons(
@@ -90,6 +84,67 @@ tmap_save(
   height = 3080,
   asp = 0
 )
+
+###################################################################################
+id_dam <- "81"
+maps3 <- tm_shape(ShapeSAE %>% filter(dam == id_dam) %>%
+                    left_join(estimado_ipm$dam2 %>% rename(PMI = IPM),  by = "dam2"))
+
+# Mapa H
+Mapa_H <- maps3 + 
+  tm_polygons(
+    fill = "H",
+    fill.scale = tm_scale(
+      breaks = brks_H,
+      values = "brewer.yl_or_rd",  # Antes palette
+      value.na = "white"           # Antes colorNA
+    ),
+    fill.legend = tm_legend(title = "H")  # Antes title
+  )
+
+# Mapa A
+Mapa_A <- maps3 + 
+  tm_polygons(
+    fill = "A",
+    fill.scale = tm_scale(
+      breaks = brks_A,
+      values = "brewer.yl_or_rd",
+      value.na = "white"
+    ),
+    fill.legend = tm_legend(title = "A")
+  )
+
+# Mapa IPM
+Mapa_ipm <- maps3 + 
+  tm_polygons(
+    fill = "PMI",
+    fill.scale = tm_scale(
+      breaks = brks_ipm,
+      values = "brewer.yl_or_rd",
+      value.na = "white"
+    ),
+    fill.legend = tm_legend(title = "MPI")
+  ) 
+
+Mapas <- tmap_arrange(Mapa_H, Mapa_A, Mapa_ipm,ncol = 1)
+# Mapas
+tmap_save(
+  Mapas,
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM_arauca2.jpeg",
+  width = 4920,
+  height = 2080,
+  asp = 0
+)
+
+tmap_save(
+  Mapas,
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_IPM_arauca2.pdf",
+  width = 4920,
+  height = 2080,
+  asp = 0
+)
+
+
 
 ########## mapa municipal por dimensiones #############
 brks_dim <- round(quantile(
@@ -158,11 +213,11 @@ tmap_save(
 
 
 ################################################################################
-
-maps2 <- tm_shape(ShapeSAE %>%
+id_dam <- "81"
+maps2 <- tm_shape(ShapeSAE %>% filter(dam == id_dam) %>%
                     inner_join(temp_estimate_mpio,  by = "dam2"))
 
-Mapa_ing2 <- 
+Mapa_ing3 <- 
   maps2 + 
   tm_polygons(
     fill = "estimate",
@@ -182,16 +237,16 @@ Mapa_ing2 <-
   ) 
 
 tmap_save(
-  Mapa_ing2,
-  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.jpeg",
-  width = 6920,
-  height = 4080,
+  Mapa_ing3,
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm_arauca.jpeg",
+  width = 5920,
+  height = 3080,
   asp = 0
 )
 
 tmap_save(
-  Mapa_ing2,
-  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm.pdf",
+  Mapa_ing3,
+  "Modelo_bayes_HxA_Hogar/COL/Output/COL_dims_ipm_arauca.pdf",
   width = 6920,
   height = 4080,
   asp = 0
