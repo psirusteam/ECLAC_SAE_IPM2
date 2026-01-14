@@ -15,10 +15,10 @@
 # associated publication.
 #
 # Authors:
-# - Alejandra María Arias Salazar
 # - Andrés Gutiérrez Rojas (ECLAC)
-# - Xavier Mancero
-# - Stalyn Guerrero
+# - Alejandra María Arias Salazar
+# - Xavier Mancero (ECLAC)
+# - Stalyn Guerrero (ECLAC)
 #
 # Affiliation:
 # United Nations Economic Commission for Latin America
