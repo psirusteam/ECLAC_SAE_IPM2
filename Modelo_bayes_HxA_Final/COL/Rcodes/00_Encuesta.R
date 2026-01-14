@@ -14,13 +14,8 @@
 # and model-based SAE approaches described in the
 # associated publication.
 #
-# Authors:
-# - Andrés Gutiérrez Rojas (ECLAC)
-# - Alejandra María Arias Salazar
-# - Xavier Mancero (ECLAC)
-# - Stalyn Guerrero (ECLAC)
 #
-# Affiliation:
+# Institution:
 # United Nations Economic Commission for Latin America
 # and the Caribbean (ECLAC / CEPAL)
 #

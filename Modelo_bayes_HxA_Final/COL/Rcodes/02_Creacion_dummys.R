@@ -11,13 +11,6 @@
 ##  - Generate simulated deprivation microdata
 ##  - Enable aggregation and uncertainty estimation at small-area level
 ##
-# Authors:
-# - Andrés Gutiérrez Rojas (ECLAC)
-# - Alejandra María Arias Salazar
-# - Xavier Mancero (ECLAC)
-# - Stalyn Guerrero (ECLAC)
-#
-#
 ## Institution:
 ## United Nations Economic Commission for Latin America and the Caribbean
 ## (ECLAC / CEPAL)

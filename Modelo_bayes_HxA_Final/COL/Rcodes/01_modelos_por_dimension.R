@@ -10,11 +10,6 @@
 ## The models are used to generate small-area predictions and to assess
 ## consistency between observed (direct) and model-based estimates.
 ##
-## Authors:
-# - Andrés Gutiérrez Rojas (ECLAC)
-# - Alejandra María Arias Salazar
-# - Xavier Mancero (ECLAC)
-# - Stalyn Guerrero (ECLAC)
 ##
 ## Institution:
 ## United Nations Economic Commission for Latin America and the Caribbean
